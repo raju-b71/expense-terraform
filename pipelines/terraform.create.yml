@@ -1,7 +1,7 @@
 
 format_version: 10
 pipelines:
-  terraform-tf-apply:
+  expense-tf-apply:
     group: Terraform
     materials:
       git-da613e5:

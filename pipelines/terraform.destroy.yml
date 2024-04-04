@@ -1,7 +1,7 @@
 
 format_version: 10
 pipelines:
-  terraform-tf-destroy:
+  expense-tf-destroy:
     group: Terraform
     materials:
       git-da613e5:
