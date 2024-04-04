@@ -25,7 +25,7 @@ resource "null_resource" "ansible" {
   }
 }
 
-resource "aws_route53_record" "" {
+resource "aws_route53_record" "record" {
   name    = "${var.component}-${var.env}"
   type    = "A"
   zone_id = var.zone_id
