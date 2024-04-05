@@ -15,9 +15,9 @@ resource "null_resource" "ansible" {
 
     connection {
       type     = "ssh"
-      user     = var.ssh_user
-      password = var.ssh_pass
-      host     = aws_instance.instance.public_ip
+      user     = "ec2-user"
+      password = "DevOps321"
+      host     = aws_instance.instance.private_ip
     }
     inline = [
       "sudo pip3.11 install ansible",
