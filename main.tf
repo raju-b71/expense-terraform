@@ -23,8 +23,8 @@ module "mysql" {
   source = "./modules/app"
   instance_type = var.instance_type
   component = "mysql"
-  ssh_user = jsondecode(data.vault_generic_secret.ssh.data_json).user
-  ssh_pass = jsondecode(data.vault_generic_secret.ssh.data_json).pass
+  user = jsondecode(data.vault_generic_secret.ssh.data_json).user
+  pass = jsondecode(data.vault_generic_secret.ssh.data_json).pass
   env = var.env
   zone_id = var.zone_id
 }
