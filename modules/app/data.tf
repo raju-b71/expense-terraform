@@ -8,6 +8,3 @@ data "aws_security_group" "selected" {
   name = "allow-all"
 }
 #ami-05f020f5935e52dc4
-data "vault_generic_secret" "ssh" {
-  path = "common/ssh"
-}
