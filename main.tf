@@ -29,7 +29,7 @@
 module "vpc" {
   source = "./modules/vpc"
   env = var.env
-  vpc_cidr_block = var.vpc_cidr_bloc
+  vpc_cidr_block = var.vpc_cidr_block
   default_vpc_id = var.default_vpc_id
   default_vpc_cidr = var.default_vpc_cidr
   default_route_table_id = var.default_route_table_id
