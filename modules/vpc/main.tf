@@ -50,6 +50,13 @@ resource "aws_route_table" "frontend" {             #route table for frontnd
 
 }
 
+resource "aws_route_table_association" "frontend" {    #for associating routetables and subnets
+
+  count = length(var.frontend_subnets)
+  subnet_id      = aws_subnet.frontend[count.index].id    #we gave count because 2 subnets were present
+  route_table_id = aws_route_table.frontend[count.index].id  #2 routetable were there
+}
+
 
 resource "aws_subnet" "backend" {
   count = length(var.backend_subnets)
@@ -75,6 +82,14 @@ resource "aws_route_table" "backend" {             #route table for backend
 
 }
 
+resource "aws_route_table_association" "backend" {    #for associating routetables and subnets
+
+  count = length(var.backend_subnets)
+  subnet_id      = aws_subnet.backend[count.index].id    #we gave count because 2 subnets were present
+  route_table_id = aws_route_table.backend[count.index].id  #2 routetable were there
+}
+
+
 resource "aws_subnet" "db" {
   count = length(var.db_subnets)
   vpc_id     = aws_vpc.main.id
@@ -99,7 +114,12 @@ resource "aws_route_table" "db" {             #route table for db
 
 }
 
+resource "aws_route_table_association" "db" {    #for associating routetables and subnets
 
+  count = length(var.db_subnets)
+  subnet_id      = aws_subnet.db[count.index].id    #we gave count because 2 subnets were present
+  route_table_id = aws_route_table.db[count.index].id  #2 routetable were there
+}
 
 
 resource "aws_subnet" "public" {
@@ -125,6 +145,14 @@ resource "aws_route_table" "public" {             #route table for public
   }
 
 }
+
+resource "aws_route_table_association" "public" {    #for associating routetables and subnets
+
+  count = length(var.public_subnets)
+  subnet_id      = aws_subnet.public[count.index].id    #we gave count because 2 subnets were present
+  route_table_id = aws_route_table.public[count.index].id  #2 routetable were there
+}
+
 
 resource "aws_route" "default-vpc" {
   route_table_id   = var.default_route_table_id
