@@ -15,20 +15,17 @@ resource "aws_vpc_peering_connection" "main" {
   }
 
 }
-resource "aws_route" "main" {
-  route_table_id   = aws_vpc.main.default_route_table_id
-  vpc_peering_connection_id = aws_vpc_peering_connection.main.id
-  destination_cidr_block = var.default_vpc_cidr
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.env}-igw"
+  }
 }
 
-resource "aws_route" "default-vpc" {
-  route_table_id   = var.default_route_table_id
-  vpc_peering_connection_id = aws_vpc_peering_connection.main.id
-  destination_cidr_block = var.vpc_cidr_block
-}
-
-#ed
-resource "aws_subnet" "frontend" {
+#ed so totally we created
+resource "aws_subnet" "frontend" {                    #subnet for frontend
   count = length(var.frontend_subnets)
   vpc_id     = aws_vpc.main.id
   cidr_block = var.frontend_subnets[count.index]
@@ -39,6 +36,21 @@ resource "aws_subnet" "frontend" {
   }
 }
 
+
+resource "aws_route_table" "frontend" {             #route table for frontnd
+  count = length(var.frontend_subnets)              #count is for becuse there weere two subnets and ip address
+  vpc_id = aws_vpc.main.id
+  route {                                             #adding peer connection
+    cidr_block = var.default_vpc_cidr
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+  tags = {
+    Name = "${var.env}-frontend-rt-${count.index+1}"
+  }
+
+}
+
+
 resource "aws_subnet" "backend" {
   count = length(var.backend_subnets)
   vpc_id     = aws_vpc.main.id
@@ -48,6 +60,19 @@ resource "aws_subnet" "backend" {
   tags = {
     Name = "${var.env}-backend-subnet-${count.index+1}"
   }
+}
+
+resource "aws_route_table" "backend" {             #route table for backend
+  count = length(var.backend_subnets)
+  vpc_id = aws_vpc.main.id
+  route {                                             #adding peer connection
+    cidr_block = var.default_vpc_cidr
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+  tags = {
+    Name = "${var.env}-backend-rt-${count.index+1}"
+  }
+
 }
 
 resource "aws_subnet" "db" {
@@ -61,6 +86,22 @@ resource "aws_subnet" "db" {
   }
 }
 
+resource "aws_route_table" "db" {             #route table for db
+  count = length(var.db_subnets)
+  vpc_id = aws_vpc.main.id
+  route {                                             #adding peer connection
+    cidr_block = var.default_vpc_cidr
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+  tags = {
+    Name = "${var.env}-db-rt-${count.index+1}"
+  }
+
+}
+
+
+
+
 resource "aws_subnet" "public" {
   count = length(var.public_subnets)
   vpc_id     = aws_vpc.main.id
@@ -72,12 +113,23 @@ resource "aws_subnet" "public" {
   }
 }
 
-resource "aws_internet_gateway" "igw" {
+resource "aws_route_table" "public" {             #route table for public
+  count = length(var.public_subnets)
   vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name = "${var.env}-igw"
+  route {                                             #adding peer connection
+    cidr_block = var.default_vpc_cidr
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   }
+  tags = {
+    Name = "${var.env}-public-rt-${count.index+1}"
+  }
+
+}
+
+resource "aws_route" "default-vpc" {
+  route_table_id   = var.default_route_table_id
+  vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  destination_cidr_block = var.vpc_cidr_block
 }
 
 
