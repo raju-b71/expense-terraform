@@ -7,6 +7,6 @@ data "aws_ami" "ami" {
 
 #ami-05f020f5935e52dc4
 
-#data "vault_generic_secret" "ssh" {
-#  path = "common/common"
-#}
+data "vault_generic_secret" "ssh" {
+  path = "common/common"
+}
