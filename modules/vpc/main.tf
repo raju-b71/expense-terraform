@@ -16,6 +16,7 @@ resource "aws_vpc_peering_connection" "main" {
 
 }
 
+
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
@@ -23,6 +24,61 @@ resource "aws_internet_gateway" "igw" {
     Name = "${var.env}-igw"
   }
 }
+
+
+resource "aws_subnet" "public" {
+  count = length(var.public_subnets)
+  vpc_id     = aws_vpc.main.id
+  cidr_block = var.public_subnets[count.index]
+  availability_zone = var.availability_zones[count.index]
+
+  tags = {
+    Name = "${var.env}-public-subnet-${count.index + 1}"
+  }
+}
+
+
+resource "aws_route_table" "public" {             #route table for public
+  count = length(var.public_subnets)
+  vpc_id = aws_vpc.main.id
+  route {                                             #adding peer connection
+    cidr_block = var.default_vpc_cidr
+    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
+  }
+  route {                                             #from where the internet connection needs to come
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name = "${var.env}-public-rt-${count.index + 1}"
+  }
+
+}
+
+resource "aws_eip" "ngw" {
+  count = length(var.public_subnets)
+  domain   = "vpc"
+}
+
+resource "aws_nat_gateway" "ngw" {
+  count = length(var.public_subnets)
+  allocation_id = aws_eip.ngw[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
+
+  tags = {
+    Name = "${var.env}-ngw-${count.index + 1}"
+  }
+
+}
+
+resource "aws_route_table_association" "public" {    #for associating routetables and subnets
+
+  count = length(var.public_subnets)
+  subnet_id      = aws_subnet.public[count.index].id    #we gave count because 2 subnets were present
+  route_table_id = aws_route_table.public[count.index].id  #2 routetable were there
+}
+
 
 #ed so totally we created
 resource "aws_subnet" "frontend" {                    #subnet for frontend
@@ -32,10 +88,9 @@ resource "aws_subnet" "frontend" {                    #subnet for frontend
   availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "${var.env}-frontend-subnet-${count.index+1}"
+    Name = "${var.env}-frontend-subnet-${count.index + 1}"
   }
 }
-
 
 resource "aws_route_table" "frontend" {             #route table for frontnd
   count = length(var.frontend_subnets)              #count is for becuse there weere two subnets and ip address
@@ -44,8 +99,12 @@ resource "aws_route_table" "frontend" {             #route table for frontnd
     cidr_block = var.default_vpc_cidr
     vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   }
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.ngw[count.index].id
+  }
   tags = {
-    Name = "${var.env}-frontend-rt-${count.index+1}"
+    Name = "${var.env}-frontend-rt-${count.index + 1}"
   }
 
 }
@@ -65,7 +124,7 @@ resource "aws_subnet" "backend" {
   availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "${var.env}-backend-subnet-${count.index+1}"
+    Name = "${var.env}-backend-subnet-${count.index + 1}"
   }
 }
 
@@ -76,8 +135,12 @@ resource "aws_route_table" "backend" {             #route table for backend
     cidr_block = var.default_vpc_cidr
     vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   }
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.ngw[count.index].id
+  }
   tags = {
-    Name = "${var.env}-backend-rt-${count.index+1}"
+    Name = "${var.env}-backend-rt-${count.index + 1}"
   }
 
 }
@@ -97,7 +160,7 @@ resource "aws_subnet" "db" {
   availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "${var.env}-db-subnet-${count.index+1}"
+    Name = "${var.env}-db-subnet-${count.index + 1}"
   }
 }
 
@@ -108,8 +171,12 @@ resource "aws_route_table" "db" {             #route table for db
     cidr_block = var.default_vpc_cidr
     vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   }
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.ngw[count.index].id
+  }
   tags = {
-    Name = "${var.env}-db-rt-${count.index+1}"
+    Name = "${var.env}-db-rt-${count.index + 1}"
   }
 
 }
@@ -122,36 +189,10 @@ resource "aws_route_table_association" "db" {    #for associating routetables an
 }
 
 
-resource "aws_subnet" "public" {
-  count = length(var.public_subnets)
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.public_subnets[count.index]
-  availability_zone = var.availability_zones[count.index]
 
-  tags = {
-    Name = "${var.env}-public-subnet-${count.index+1}"
-  }
-}
 
-resource "aws_route_table" "public" {             #route table for public
-  count = length(var.public_subnets)
-  vpc_id = aws_vpc.main.id
-  route {                                             #adding peer connection
-    cidr_block = var.default_vpc_cidr
-    vpc_peering_connection_id = aws_vpc_peering_connection.main.id
-  }
-  tags = {
-    Name = "${var.env}-public-rt-${count.index+1}"
-  }
 
-}
 
-resource "aws_route_table_association" "public" {    #for associating routetables and subnets
-
-  count = length(var.public_subnets)
-  subnet_id      = aws_subnet.public[count.index].id    #we gave count because 2 subnets were present
-  route_table_id = aws_route_table.public[count.index].id  #2 routetable were there
-}
 
 
 resource "aws_route" "default-vpc" {
