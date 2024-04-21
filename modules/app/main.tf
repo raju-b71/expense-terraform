@@ -40,8 +40,8 @@ resource "aws_instance" "instance" {
 
 
 
-resource "null_resource" "ansible" {    # but can be used to trigger actions through provisioners or local-exec #THIS HAS NO INHERENT PROPERTIES  triggers
-  provisioner "remote-exec" {           #   It uses provisioners to execute local commands (using local-exec)
+resource "null_resource" "ansible" {      # but can be used to trigger actions through provisioners or local-exec #THIS HAS NO INHERENT PROPERTIES  triggers
+  provisioner "remote-exec" {              #   It uses provisioners to execute local commands (using local-exec)
 
     connection {
       type     = "ssh"
