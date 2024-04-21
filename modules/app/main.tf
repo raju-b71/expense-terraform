@@ -46,7 +46,7 @@ resource "null_resource" "ansible" {    # but can be used to trigger actions thr
     connection {
       type     = "ssh"
       user     = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_user
-      password = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_pass
+      password = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_password
       host     = aws_instance.instance.private_ip
     }
     inline = [
