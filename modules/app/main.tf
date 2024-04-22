@@ -66,7 +66,8 @@ resource "null_resource" "ansible" {      # but can be used to trigger actions t
   }
 }
 
-resource "aws_route53_record" "record" {
+resource "aws_route53_record" "server" {
+  count = var.lb_needed ? 0 : 1
   name    = "${var.component}-${var.env}"
   type    = "A"
   zone_id = var.zone_id
@@ -74,8 +75,14 @@ resource "aws_route53_record" "record" {
   ttl = 30
 }
 
-
-
+resource "aws_route53_record" "load-balancer" {
+  count = var.lb_needed ? 1 : 0                                    if lb is needed then we create server record = 1
+  name    = "${var.component}-${var.env}"
+  type    = "CNAME"
+  zone_id = var.zone_id
+  records = [aws_lb.main.[0].dns_name]
+  ttl = 30
+}
 
 resource "aws_lb" "main" {                                                     #loadbalncer
   count = var.lb_needed ? 1 : 0                                         #this is condition because mysql is failing for not having lb
