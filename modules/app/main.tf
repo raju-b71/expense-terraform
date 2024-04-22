@@ -102,6 +102,7 @@ resource "aws_lb_target_group" "main" {                                  #this i
     port = var.app_port
     timeout = 2
     unhealthy_threshold = 2
+    deregistration_delay = 15
 
   }
 }
