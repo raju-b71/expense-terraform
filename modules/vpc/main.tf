@@ -189,12 +189,6 @@ resource "aws_route_table_association" "db" {    #for associating routetables an
 }
 
 
-
-
-
-
-
-
 resource "aws_route" "default-vpc" {
   route_table_id   = var.default_route_table_id
   vpc_peering_connection_id = aws_vpc_peering_connection.main.id
