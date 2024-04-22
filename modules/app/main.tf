@@ -68,7 +68,7 @@ resource "aws_route53_record" "record" {
 }
 
 resource "aws_lb" "main" {
-  count = var.lb_needed                                           #loadbalncer
+  count = var.lb_needed ? 1 : 0                                           #loadbalncer
   name               = "{var.env}-${var.component}-alb"
   internal           = var.lb_type == "public" ? false : true              #this  is cond if var.lb= public is false then
   load_balancer_type = "application"
