@@ -76,7 +76,7 @@ resource "aws_lb" "main" {                                                     #
   subnets            = var.lb_subnets                                       # we have to go to f,b and choose subnets
 
   tags = {
-    Environment = "{var.env}-${var.component}-alb"
+    Environment = "${var.env}-${var.component}-alb"
   }
 }
 #
