@@ -67,12 +67,25 @@ resource "null_resource" "ansible" {      # but can be used to trigger actions t
 }
 
 resource "aws_route53_record" "record" {
+  count   = var.lb_needed ? 0 : 1
   name    = "${var.component}-${var.env}"
   type    = "A"
   zone_id = var.zone_id
   records = [aws_instance.instance.private_ip]
   ttl = 30
 }
+
+
+resource "aws_route53_record" "record" {
+  count   = var.lb_needed ? 1 : 0
+  name    = "${var.component}-${var.env}"
+  type    = "CNAME"
+  zone_id = var.zone_id
+  records = [aws_instance.instance.private_ip]
+  ttl = 30
+}
+
+
 
 resource "aws_lb" "main" {                                                     #loadbalncer
   count = var.lb_needed ? 1 : 0                                         #this is condition because mysql is failing for not having lb
