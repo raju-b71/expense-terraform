@@ -15,3 +15,6 @@ variable "lb_subnets" {
   default = null
 
 }
+variable "app_port"{
+  default = null
+}

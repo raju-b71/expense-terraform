@@ -38,14 +38,14 @@ resource "aws_subnet" "public" {
 }
 
 
-resource "aws_route_table" "public" {             #route table for public
+resource "aws_route_table" "public" {                        #route table for public
   count = length(var.public_subnets)
   vpc_id = aws_vpc.main.id
-  route {                                             #adding peer connection
+  route {                                                     #adding peer connection
     cidr_block = var.default_vpc_cidr
     vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   }
-  route {                                             #from where the internet connection needs to come
+  route {                                                       #from where the internet connection needs to come
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
@@ -72,16 +72,16 @@ resource "aws_nat_gateway" "ngw" {
 
 }
 
-resource "aws_route_table_association" "public" {    #for associating routetables and subnets
+resource "aws_route_table_association" "public" {               #for associating routetables and subnets
 
   count = length(var.public_subnets)
-  subnet_id      = aws_subnet.public[count.index].id    #we gave count because 2 subnets were present
-  route_table_id = aws_route_table.public[count.index].id  #2 routetable were there
+  subnet_id      = aws_subnet.public[count.index].id              #we gave count because 2 subnets were present
+  route_table_id = aws_route_table.public[count.index].id           #2 routetable were there
 }
 
 
 #ed so totally we created
-resource "aws_subnet" "frontend" {                    #subnet for frontend
+resource "aws_subnet" "frontend" {                                 #subnet for frontend
   count = length(var.frontend_subnets)
   vpc_id     = aws_vpc.main.id
   cidr_block = var.frontend_subnets[count.index]
@@ -92,10 +92,10 @@ resource "aws_subnet" "frontend" {                    #subnet for frontend
   }
 }
 
-resource "aws_route_table" "frontend" {             #route table for frontnd
-  count = length(var.frontend_subnets)              #count is for becuse there weere two subnets and ip address
+resource "aws_route_table" "frontend" {                              #route table for frontnd
+  count = length(var.frontend_subnets)                               #count is for becuse there weere two subnets and ip address
   vpc_id = aws_vpc.main.id
-  route {                                             #adding peer connection
+  route {                                                            #adding peer connection
     cidr_block = var.default_vpc_cidr
     vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   }
@@ -109,11 +109,11 @@ resource "aws_route_table" "frontend" {             #route table for frontnd
 
 }
 
-resource "aws_route_table_association" "frontend" {    #for associating routetables and subnets
+resource "aws_route_table_association" "frontend" {                    #for associating routetables and subnets
 
   count = length(var.frontend_subnets)
-  subnet_id      = aws_subnet.frontend[count.index].id    #we gave count because 2 subnets were present
-  route_table_id = aws_route_table.frontend[count.index].id  #2 routetable were there
+  subnet_id      = aws_subnet.frontend[count.index].id                 #we gave count because 2 subnets were present
+  route_table_id = aws_route_table.frontend[count.index].id            #2 routetable were there
 }
 
 
@@ -128,10 +128,10 @@ resource "aws_subnet" "backend" {
   }
 }
 
-resource "aws_route_table" "backend" {             #route table for backend
+resource "aws_route_table" "backend" {                                   #route table for backend
   count = length(var.backend_subnets)
   vpc_id = aws_vpc.main.id
-  route {                                             #adding peer connection
+  route {                                                                #adding peer connection
     cidr_block = var.default_vpc_cidr
     vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   }
@@ -145,11 +145,11 @@ resource "aws_route_table" "backend" {             #route table for backend
 
 }
 
-resource "aws_route_table_association" "backend" {    #for associating routetables and subnets
+resource "aws_route_table_association" "backend" {                     #for associating routetables and subnets
 
   count = length(var.backend_subnets)
-  subnet_id      = aws_subnet.backend[count.index].id    #we gave count because 2 subnets were present
-  route_table_id = aws_route_table.backend[count.index].id  #2 routetable were there
+  subnet_id      = aws_subnet.backend[count.index].id                  #we gave count because 2 subnets were present
+  route_table_id = aws_route_table.backend[count.index].id             #2 routetable were there
 }
 
 
@@ -164,10 +164,10 @@ resource "aws_subnet" "db" {
   }
 }
 
-resource "aws_route_table" "db" {             #route table for db
+resource "aws_route_table" "db" {                                    #route table for db
   count = length(var.db_subnets)
   vpc_id = aws_vpc.main.id
-  route {                                             #adding peer connection
+  route {                                                             #adding peer connection
     cidr_block = var.default_vpc_cidr
     vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   }
@@ -181,11 +181,11 @@ resource "aws_route_table" "db" {             #route table for db
 
 }
 
-resource "aws_route_table_association" "db" {    #for associating routetables and subnets
+resource "aws_route_table_association" "db" {                          #for associating routetables and subnets
 
   count = length(var.db_subnets)
-  subnet_id      = aws_subnet.db[count.index].id    #we gave count because 2 subnets were present
-  route_table_id = aws_route_table.db[count.index].id  #2 routetable were there
+  subnet_id      = aws_subnet.db[count.index].id                      #we gave count because 2 subnets were present
+  route_table_id = aws_route_table.db[count.index].id                  #2 routetable were there
 }
 
 
@@ -194,6 +194,8 @@ resource "aws_route" "default-vpc" {
   vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   destination_cidr_block = var.vpc_cidr_block
 }
+
+
 
 
 
