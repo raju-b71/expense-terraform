@@ -100,8 +100,8 @@ resource "aws_route53_record" "load-balancer" {                   #route53 for l
 
 resource "aws_security_group" "load-balancer" {                   #seperate sg for loadbalancer
  count = var.lb_needed ? 1 : 0
-  name = "${var.component}-${var.env}-sg"
-  description = "${var.component}-${var.env}-sg"
+  name = "${var.component}-${var.env}-lb-sg"                        #name is loadbalancer security group
+  description = "${var.component}-${var.env}-lb-sg"
   vpc_id = var.vpc_id
 
   ingress {                                                       #one is inboundport/any sg wii have inbound rules and outbound rules
