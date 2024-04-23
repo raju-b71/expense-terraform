@@ -15,7 +15,7 @@ resource "aws_security_group" "main" {
       from_port        = 22                             # 22 is for server port
       to_port          = 22
       protocol         = "TCP"                           #one is outboundport
-      cidr_blocks      = var.bastian_nodes             #for bastian (workstation)only we allow ssh access
+      cidr_blocks      = var.bastion_nodes             #for bastian (workstation)only we allow ssh access
     }
    ingress {
          from_port        = 9100                        #same way for prometheus
@@ -28,7 +28,7 @@ resource "aws_security_group" "main" {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"                 #one is outboundport
-    cidr_blocks      = [var.bastian_nodes]
+    cidr_blocks      = [var.bastion_nodes]
   }
 
   tags = {
