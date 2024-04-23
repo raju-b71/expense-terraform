@@ -8,7 +8,7 @@ resource "aws_security_group" "main" {
     from_port        = var.app_port
     to_port          = var.app_port                  #0 to 0 is whole range
     protocol         = "-1"                          #this stands for all traffic(-1)
-    cidr_blocks      = var.server_app_port_sg_cider
+    cidr_blocks      = var.server_app_port_sg_cidr
   }
 
    ingress {
