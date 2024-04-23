@@ -7,7 +7,7 @@ resource "aws_security_group" "main" {
   ingress {                                          #one is inboundport/any sg wii have inbound rules and outbound rules
     from_port        = var.app_port
     to_port          = var.app_port                  #0 to 0 is whole range
-    protocol         = "-1"                          #this stands for all traffic(-1)
+    protocol         = "TCP"                          #this stands for all traffic(-1)
     cidr_blocks      = var.server_app_port_sg_cidr
   }
 
@@ -107,7 +107,7 @@ resource "aws_security_group" "load-balancer" {                   #seperate sg f
   ingress {                                                       #one is inboundport/any sg wii have inbound rules and outbound rules
     from_port        = var.app_port
     to_port          = var.app_port                                       #0 to 0 is whole range
-    protocol         = "-1"                                        #this stands for all traffic(-1)
+    protocol         = "TCP"                                        #this stands for all traffic(-1)
     cidr_blocks      = var.lb_app_port_sg_cidr
   }
 
