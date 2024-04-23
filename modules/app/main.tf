@@ -37,8 +37,6 @@ resource "aws_security_group" "main" {
 }
 
 
-
-
 resource "aws_instance" "instance" {
   ami           = data.aws_ami.ami.image_id
   instance_type = var.instance_type
@@ -79,6 +77,7 @@ resource "null_resource" "ansible" {      # but can be used to trigger actions t
   }
 }
 
+#routw53 records for server and loadbalancer..
 resource "aws_route53_record" "server" {
   count = var.lb_needed ? 0 : 1
   name    = "${var.component}-${var.env}"
@@ -97,7 +96,7 @@ resource "aws_route53_record" "load-balancer" {                   #route53 for l
   ttl = 30
 }
 
-#
+#security group for LOADBALANCER
 resource "aws_security_group" "load-balancer" {                   #seperate sg for loadbalancer
  count = var.lb_needed ? 1 : 0
   name = "${var.component}-${var.env}-lb-sg"                        #name is loadbalancer security group
@@ -124,7 +123,7 @@ resource "aws_security_group" "load-balancer" {                   #seperate sg f
 }
 
 
-
+#THIS IS LOADBALANCER
 resource "aws_lb" "main" {                                                     #loadbalncer
   count = var.lb_needed ? 1 : 0                                           #this is condition because mysql is failing for not having lb
   name               = "${var.env}-${var.component}-alb"
@@ -138,7 +137,7 @@ resource "aws_lb" "main" {                                                     #
   }
 }
 
-
+#LOADBALANCER TARGET GROUP()
 resource "aws_lb_target_group" "main" {                                  #this is target group before giving listener
   count = var.lb_needed ? 1 : 0
   name     = "${var.env}-${var.component}-tg"
@@ -160,10 +159,7 @@ resource "aws_lb_target_group" "main" {                                  #this i
 }
 
 
-
-
-
-
+#LOADBALANCER TARGET GROUP ATTACHMENT
 resource "aws_lb_target_group_attachment" "main" {                       #creating attach group for target group
   count = var.lb_needed ? 1 : 0
   target_group_arn = aws_lb_target_group.main[0].arn
@@ -171,8 +167,41 @@ resource "aws_lb_target_group_attachment" "main" {                       #creati
   port             = var.app_port
 }
 
-resource "aws_lb_listener" "main" {                                  #listener group
-   count = var.lb_needed ? 1 : 0
+
+#LOADBALANCER LISTENER
+resource "aws_lb_listener" "frontend-http" {                                  #listener group
+  count = var.lb_needed && var.lb_type == "public" ? 1 : 0
+  load_balancer_arn = aws_lb.main[0].arn
+  port              = var.app_port
+  protocol          = "HTTP"
+
+ default_action {
+     type = "redirect"
+     redirect {
+       port        = "443"
+       protocol    = "HTTPS"
+       status_code = "HTTP_301"
+     }
+   }
+}
+
+resource "aws_lb_listener" "frontend-https" {                                  #listener group
+  count = var.lb_needed && var.lb_type == "public" ? 1 : 0
+  load_balancer_arn = aws_lb.main[0].arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy       = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn = var.certificate_arn
+
+  default_action {
+     type = "forward"
+     target_group_arn = aws_lb_target_group.main[0].arn
+  }
+
+}
+
+resource "aws_lb_listener" "backend" {                                  #listener group
+  count = var.lb_needed && var.lb_type == "public" ? 1 : 0
   load_balancer_arn = aws_lb.main[0].arn
   port              = var.app_port
   protocol          = "HTTP"
