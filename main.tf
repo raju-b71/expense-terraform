@@ -17,6 +17,7 @@ module "frontend" {
   server_app_port_sg_cidr = var.public_subnets
   lb_app_port_sg_cidr = ["0.0.0.0/0"]
   certificate_arn = var.certificate_arn
+  lb_ports = {http: 80, https: 443}                          #http is key and 80 IS VALUE(FOR DYNAMIC INGRESS SG)
 }
 
 
@@ -38,7 +39,7 @@ module "backend" {
   prometheus_nodes = var.prometheus_nodes
   server_app_port_sg_cidr = concat(var.frontend_subnets, var.backend_subnets)        #backend will acess by frontend and backend als hav lb so total 4 subnets (concat)
   lb_app_port_sg_cidr = var.frontend_subnets                                           #this can onlyacessed by frontend subnets(bacck nly aces fonr subnet)
-
+  lb_ports = {http: 8080 }
 
 
 }

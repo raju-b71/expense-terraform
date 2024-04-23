@@ -103,11 +103,14 @@ resource "aws_security_group" "load-balancer" {                   #seperate sg f
   description = "${var.component}-${var.env}-lb-sg"
   vpc_id = var.vpc_id
 
-  ingress {                                                       #one is inboundport/any sg wii have inbound rules and outbound rules
-    from_port        = var.app_port
-    to_port          = var.app_port                                       #0 to 0 is whole range
-    protocol         = "TCP"                                        #this stands for all traffic(-1)
-    cidr_blocks      = var.lb_app_port_sg_cidr
+  dynamic "ingress" {                                         #one is inboundport/any sg wii have inbound rules and outbound rules
+     for_each = var.lb_ports
+     content {
+       from_port   = ingress.value                              #0 to 0 is whole range
+       to_port     = ingress.value
+       protocol    = "TCP"                                     #this stands for all traffic
+       cidr_blocks = var.lb_app_port_sg_cidr
+     }
   }
 
   egress {
@@ -169,7 +172,7 @@ resource "aws_lb_target_group_attachment" "main" {                       #creati
 
 
 #LOADBALANCER LISTENER
-resource "aws_lb_listener" "frontend-http" {                                  #listener group
+resource "aws_lb_listener" "frontend-t-http" {                                  #listener group
   count = var.lb_needed && var.lb_type == "public" ? 1 : 0
   load_balancer_arn = aws_lb.main[0].arn
   port              = var.app_port
