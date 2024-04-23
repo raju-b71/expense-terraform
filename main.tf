@@ -34,7 +34,7 @@ module "backend" {
   app_port = 8080
   bastion_nodes = var.bastion_nodes
   prometheus_nodes = var.prometheus_nodes
-  server_app_port_sg_cider = concat(module.vpc.frontend_subnets, module.vpc.backend_subnets)        #backend will acess by frontend and backend als hav lb so total 4 subnets (concat)
+  server_app_port_sg_cidr = concat(module.vpc.frontend_subnets, module.vpc.backend_subnets)        #backend will acess by frontend and backend als hav lb so total 4 subnets (concat)
   lb_app_port_sg_cidr = module.vpc.frontend_subnets                                           #this can onlyacessed by frontend subnets(bacck nly aces fonr subnet)
 
 }
