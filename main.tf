@@ -14,6 +14,7 @@ module "frontend" {
   app_port = 80
   bastion_nodes = var.bastion_nodes
   prometheus_nodes = var.prometheus_nodes
+  server_app_port_sg_cidr = var.public_subnets
   lb_app_port_sg_cidr = ["0.0.0.0/0"]
 }
 
@@ -34,8 +35,8 @@ module "backend" {
   app_port = 8080
   bastion_nodes = var.bastion_nodes
   prometheus_nodes = var.prometheus_nodes
-  server_app_port_sg_cidr = concat(module.vpc.frontend_subnets, module.vpc.backend_subnets)        #backend will acess by frontend and backend als hav lb so total 4 subnets (concat)
-  lb_app_port_sg_cidr = module.vpc.frontend_subnets                                           #this can onlyacessed by frontend subnets(bacck nly aces fonr subnet)
+  server_app_port_sg_cidr = concat(var.frontend_subnets, var.backend_subnets)        #backend will acess by frontend and backend als hav lb so total 4 subnets (concat)
+  lb_app_port_sg_cidr = var.frontend_subnets                                           #this can onlyacessed by frontend subnets(bacck nly aces fonr subnet)
 
 }
 
@@ -52,7 +53,7 @@ module "mysql" {
   bastion_nodes = var.bastion_nodes
   prometheus_nodes = var.prometheus_nodes
   app_port = 3306
-  server_app_port_sg_cider = module.vpc.backend_subnets              #which security group i want to allw
+  server_app_port_sg_cidr = var.backend_subnets              #which security group i want to allw
 
 }
 
