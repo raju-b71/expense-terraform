@@ -97,7 +97,7 @@ resource "aws_route53_record" "load-balancer" {                   #route53 for l
   ttl = 30
 }
 
-
+#
 resource "aws_security_group" "load-balancer" {                   #seperate sg for loadbalancer
  count = var.lb_needed ? 1 : 0
   name = "${var.component}-${var.env}-lb-sg"                        #name is loadbalancer security group
