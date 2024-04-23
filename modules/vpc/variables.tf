@@ -9,3 +9,5 @@ variable "backend_subnets" {}
 variable "db_subnets" {}
 variable "public_subnets" {}
 variable "availability_zones" {}
+variable "prometheus_node" {}
+

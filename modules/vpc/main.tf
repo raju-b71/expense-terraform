@@ -38,10 +38,10 @@ resource "aws_subnet" "public" {
 }
 
 
-resource "aws_route_table" "public" {                        #route table for public
+resource "aws_route_table" "public" {                          #route table for public
   count = length(var.public_subnets)
   vpc_id = aws_vpc.main.id
-  route {                                                     #adding peer connection
+  route {                                                       #adding peer connection
     cidr_block = var.default_vpc_cidr
     vpc_peering_connection_id = aws_vpc_peering_connection.main.id
   }
@@ -69,13 +69,13 @@ resource "aws_nat_gateway" "ngw" {
   tags = {
     Name = "${var.env}-ngw-${count.index + 1}"
   }
-
 }
 
-resource "aws_route_table_association" "public" {               #for associating routetables and subnets
 
+
+resource "aws_route_table_association" "public" {                  #for associating routetables and subnets
   count = length(var.public_subnets)
-  subnet_id      = aws_subnet.public[count.index].id              #we gave count because 2 subnets were present
+  subnet_id      = aws_subnet.public[count.index].id                #we gave count because 2 subnets were present
   route_table_id = aws_route_table.public[count.index].id           #2 routetable were there
 }
 

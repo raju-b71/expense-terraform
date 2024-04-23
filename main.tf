@@ -12,6 +12,9 @@ module "frontend" {
   lb_needed = true
   lb_subnets = module.vpc.public_subnets                     #we gave it because the lb needs crreate in frontendsubnets
   app_port = 80
+  bastion_nodes = var.bastion_nodes
+  prometheus_nodes = var.prometheus_nodes
+  lb_app_port_sg_cidr = ["0.0.0.0/0"]
 }
 
 
@@ -27,9 +30,15 @@ module "backend" {
   vpc_id = module.vpc.vpc_id
   lb_type = "private"
   lb_needed = true
-  lb_subnets = module.vpc.backend_subnets                   #for backend it needs to be in backend subnets
+  lb_subnets = module.vpc.backend_subnets                                                    #for backend it needs to be in backend subnets
   app_port = 8080
+  bastion_nodes = var.bastion_nodes
+  prometheus_nodes = var.prometheus_nodes
+  server_app_port_sg_cider = concat(module.vpc.frontend_subnets, module.vpc.backend_subnets)        #backend will acess by frontend and backend als hav lb so total 4 subnets (concat)
+  lb_app_port_sg_cidr = module.vpc.frontend_subnets                                           #this can onlyacessed by frontend subnets(bacck nly aces fonr subnet)
+
 }
+
 
 module "mysql" {
   source = "./modules/app"
@@ -40,6 +49,10 @@ module "mysql" {
   vault_token = var.vault_token
   subnets = module.vpc.db_subnets
   vpc_id = module.vpc.vpc_id
+  bastion_nodes = var.bastion_nodes
+  prometheus_nodes = var.prometheus_nodes
+  app_port = 3306
+  server_app_port_sg_cider = module.vpc.backend_subnets              #which security group i want to allw
 
 }
 

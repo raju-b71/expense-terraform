@@ -4,18 +4,31 @@ resource "aws_security_group" "main" {
   vpc_id = var.vpc_id
 
 
-  ingress {                            #one is inboundport/any sg wii have inbound rules and outbound rules
-    from_port        = 0
-    to_port          = 0              #0 to 0 is whole range
-    protocol         = "-1"         #this stands for all traffic(-1)
-    cidr_blocks      = ["0.0.0.0/0"]
+  ingress {                                          #one is inboundport/any sg wii have inbound rules and outbound rules
+    from_port        = var.app_port
+    to_port          = var.app_port                  #0 to 0 is whole range
+    protocol         = "-1"                          #this stands for all traffic(-1)
+    cidr_blocks      = var.server_app_port_sg_cider
   }
+
+   ingress {
+      from_port        = 22                             # 22 is for server port
+      to_port          = 22
+      protocol         = "-1"                           #one is outboundport
+      cidr_blocks      = [var.bastian_nodes]            #for bastian (workstation)only we allow ssh access
+    }
+   ingress {
+         from_port        = 9100                        #same way for prometheus
+         to_port          = 9100
+         protocol         = "-1"
+         cidr_blocks      = [var.prometheus_nodes]
+       }
 
   egress {
     from_port        = 0
     to_port          = 0
     protocol         = "-1"                 #one is outboundport
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = [var.bastian_nodes]
   }
 
   tags = {
@@ -29,8 +42,8 @@ resource "aws_security_group" "main" {
 resource "aws_instance" "instance" {
   ami           = data.aws_ami.ami.image_id
   instance_type = var.instance_type
-  vpc_security_group_ids = [aws_security_group.main.id]   #we created our own security group
-  subnet_id = var.subnets[0] #we give first subnet
+  vpc_security_group_ids = [aws_security_group.main.id]                        #we created our own security group
+  subnet_id = var.subnets[0]                                                   #we give first subnet
   tags = {
     Name = var.component
     monitor = "yes"
@@ -75,8 +88,8 @@ resource "aws_route53_record" "server" {
   ttl = 30
 }
 
-resource "aws_route53_record" "load-balancer" {
-  count  = var.lb_needed ? 1 : 0                                   #  if lb is needed then we create server record = 1
+resource "aws_route53_record" "load-balancer" {                   #route53 for lb
+  count  = var.lb_needed ? 1 : 0                                       #  if lb is needed then we create server record = 1
   name    = "${var.component}-${var.env}"
   type    = "CNAME"
   zone_id = var.zone_id
@@ -84,12 +97,40 @@ resource "aws_route53_record" "load-balancer" {
   ttl = 30
 }
 
+
+resource "aws_security_group" "load-balancer" {                   #seperate sg for loadbalancer
+ count = var.lb_needed ? 1 : 0
+  name = "${var.component}-${var.env}-sg"
+  description = "${var.component}-${var.env}-sg"
+  vpc_id = var.vpc_id
+
+  ingress {                                                       #one is inboundport/any sg wii have inbound rules and outbound rules
+    from_port        = var.app_port
+    to_port          = var.app_port                                       #0 to 0 is whole range
+    protocol         = "-1"                                        #this stands for all traffic(-1)
+    cidr_blocks      = var.lb_app_port_sg_cidr
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"                                         #one is outboundport
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.component}-${var.env}-sg"
+  }
+}
+
+
+
 resource "aws_lb" "main" {                                                     #loadbalncer
-  count = var.lb_needed ? 1 : 0                                         #this is condition because mysql is failing for not having lb
+  count = var.lb_needed ? 1 : 0                                           #this is condition because mysql is failing for not having lb
   name               = "${var.env}-${var.component}-alb"
   internal           = var.lb_type == "public" ? false : true              #this  is cond if var.lb= public is false then
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.main.id]
+  security_groups    = [aws_security_group.load-balancer[0].id]
   subnets            = var.lb_subnets                                       # we have to go to f,b and choose subnets
 
   tags = {
