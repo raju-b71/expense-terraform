@@ -1,3 +1,3 @@
-data "vault_generic_secret" "ssh" {
-  path = "rds/ssh"
+data "vault_generic_secret" "rds" {
+  path = "rds/dev"
 }
