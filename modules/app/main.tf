@@ -172,7 +172,7 @@ resource "aws_lb_target_group_attachment" "main" {                       #creati
 
 
 #LOADBALANCER LISTENER
-resource "aws_lb_listener" "frontend-t-http" {                                  #listener group
+resource "aws_lb_listener" "frontend-http" {                                  #listener group
   count = var.lb_needed && var.lb_type == "public" ? 1 : 0
   load_balancer_arn = aws_lb.main[0].arn
   port              = var.app_port
