@@ -68,7 +68,7 @@ resource "null_resource" "ansible" {      # but can be used to trigger actions t
       host     = aws_instance.instance.private_ip
     }
     inline = [
-      "rm -f ~/*.json"
+      "rm -f ~/*.json",
       "sudo pip3.11 install ansible hvac",
       "ansible-pull -i localhost, -U https://github.com/raju-b71/expense-ansible get-secrets.yml -e env=${var.env} -e role_name=${var.component} -e vault_token=${var.vault_token}",
       "ansible-pull -i localhost, -U https://github.com/raju-b71/expense-ansible expense.yml -e env=${var.env} -e role_name=${var.component} -e @~/secrets.json",
