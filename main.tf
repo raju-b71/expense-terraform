@@ -64,7 +64,7 @@ module "mysql" {
 
 module "rds" {
   source = "./modules/rds"
-  allocated_storage    = "20"
+  allocated_storage    = 20
   component             = "rds"
   engine               = "mysql"
   engine_version       = "8.0.36"
