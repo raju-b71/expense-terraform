@@ -22,7 +22,7 @@ module "frontend" {
 
 
 module "backend" {
-  depends_on = [module.rds]
+#   depends_on = [module.rds]
   source = "./modules/app"
   instance_type = var.instance_type
   component = "backend"
