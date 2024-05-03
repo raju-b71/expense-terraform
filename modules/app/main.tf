@@ -64,15 +64,21 @@ resource "aws_instance" "instance" {
 
 
 
-resource "null_resource" "ansible" {      # but can be used to trigger actions through provisioners or local-exec #THIS HAS NO INHERENT PROPERTIES  triggers
-  provisioner "remote-exec" {              #   It uses provisioners to execute local commands (using local-exec)
 
-    connection {
-      type     = "ssh"
-      user     = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_user
-      password = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_password
-      host     = aws_instance.instance.private_ip
-    }
+
+resource "null_resource" "ansible" {      # but can be used to trigger actions through provisioners or local-exec #THIS HAS NO INHERENT PROPERTIES  triggers
+
+  triggers = {
+    instance = aws_instance.instance.id
+  }
+  connection {
+    type     = "ssh"
+    user     = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_user
+    password = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_password
+    host     = aws_instance.instance.private_ip
+  }
+
+  provisioner "remote-exec" {              #   It uses provisioners to execute local commands (using local-exec)
     inline = [
       "rm -f ~/*.json",
       "sudo pip3.11 install ansible hvac",
@@ -80,6 +86,11 @@ resource "null_resource" "ansible" {      # but can be used to trigger actions t
       "ansible-pull -i localhost, -U https://github.com/raju-b71/expense-ansible expense.yml -e env=${var.env} -e role_name=${var.component} -e @~/secrets.json",
 
 
+    ]
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "rm -f ~/secrets.json ~/app.json"
     ]
   }
 }
