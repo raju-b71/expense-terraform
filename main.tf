@@ -50,7 +50,7 @@ module "frontend" {
   source = "./modules/app-asg"
   app_port = 80
   bastion_nodes = var.bastion_nodes
-  component = "backend"
+  component = "frontend"
   env = var.env
   instance_type = var.instance_type
   max_capacity = var.max_capacity
