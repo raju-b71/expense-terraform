@@ -16,7 +16,7 @@ resource "aws_db_instance" "main" {
   vpc_security_group_ids = [aws_security_group.main.id]
   storage_encrypted = true                                     #encryption(kms key)
   kms_key_id = var.kms_key_id
-  backup_retention_period = 35
+  backup_retention_period = 35                                 #for enabling backup in dtabase
   backup_window = "07:00-08:00"
 }
 
