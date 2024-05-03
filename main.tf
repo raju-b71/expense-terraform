@@ -18,6 +18,7 @@ module "frontend" {
   lb_app_port_sg_cidr = ["0.0.0.0/0"]
   certificate_arn = var.certificate_arn
   lb_ports = {http: 80, https: 443}                          #http is key and 80 IS VALUE(FOR DYNAMIC INGRESS SG)
+  kms_key_id = var.kms_key_id
 }
 
 
@@ -40,6 +41,7 @@ module "backend" {
   server_app_port_sg_cidr = concat(var.frontend_subnets, var.backend_subnets)        #backend will acess by frontend and backend als hav lb so total 4 subnets (concat)
   lb_app_port_sg_cidr = var.frontend_subnets                                           #this can onlyacessed by frontend subnets(bacck nly aces fonr subnet)
   lb_ports = {http: 8080 }
+  kms_key_id = var.kms_key_id
 
 #
 }
