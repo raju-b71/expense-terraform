@@ -78,7 +78,8 @@ resource "null_resource" "ansible" {      # but can be used to trigger actions t
     host     = aws_instance.instance.private_ip
   }
 
-  provisioner "remote-exec" {              #   It uses provisioners to execute local commands (using local-exec)
+  provisioner "remote-exec" {
+
     inline = [
       "rm -f ~/*.json",
       "sudo pip3.11 install ansible hvac",
