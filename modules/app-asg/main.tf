@@ -44,6 +44,7 @@ resource "aws_launch_template" "main" {
   vpc_security_group_ids = [aws_security_group.main.id]
 }
 resource "aws_autoscaling_group" "main" {
+  name          = "${var.component}-${var.env}"
   desired_capacity   = var.min_capacity
   max_size           = var.max_capacity
   min_size           = var.min_capacity
@@ -54,7 +55,15 @@ resource "aws_autoscaling_group" "main" {
     id      = aws_launch_template.main.id
     version = "$Latest"
   }
+  tag {
+    key                 = "Name"
+    value               = "${var.component}-${var.env}"
+    propagate_at_launch = true
+  }
+
+
 }
+
 
 resource "aws_autoscaling_policy" "main" {
   name                   = "target-cpu"
