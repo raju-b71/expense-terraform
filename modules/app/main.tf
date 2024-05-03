@@ -86,6 +86,7 @@ resource "null_resource" "ansible" {      # but can be used to trigger actions t
     ]
   }
 }
+#
 
 #routw53 records for server and loadbalancer..
 resource "aws_route53_record" "server" {
