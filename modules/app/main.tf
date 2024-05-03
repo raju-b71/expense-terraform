@@ -67,7 +67,6 @@ resource "aws_instance" "instance" {
 
 
 resource "null_resource" "ansible" {      # but can be used to trigger actions through provisioners or local-exec #THIS HAS NO INHERENT PROPERTIES  triggers
-
   triggers = {
     instance = aws_instance.instance.id
   }

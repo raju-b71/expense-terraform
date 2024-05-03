@@ -41,8 +41,8 @@ resource "aws_security_group" "main" {
 
 
   ingress {                                          #one is inboundport/any sg wii have inbound rules and outbound rules
-    from_port        = 33306
-    to_port          = 33306                  #0 to 0 is whole range
+    from_port        = 3306
+    to_port          = 3306                  #0 to 0 is whole range
     protocol         = "TCP"                          #this stands for all traffic(-1)
     cidr_blocks      = var.server_app_port_sg_cidr
   }
