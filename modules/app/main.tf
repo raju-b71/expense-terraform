@@ -58,17 +58,19 @@ resource "aws_instance" "instance" {
 
 
 
+
+
 resource "null_resource" "ansible" {      # but can be used to trigger actions through provisioners or local-exec #THIS HAS NO INHERENT PROPERTIES  triggers
 
-    triggers = {
-      instance = aws_instance.instance.id
-    }
-    connection {
-      type     = "ssh"
-      user     = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_user
-      password = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_password
-      host     = aws_instance.instance.private_ip
-    }
+  triggers = {
+    instance = aws_instance.instance.id
+  }
+  connection {
+    type     = "ssh"
+    user     = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_user
+    password = jsondecode(data.vault_generic_secret.ssh.data_json).ansible_password
+    host     = aws_instance.instance.private_ip
+  }
 
   provisioner "remote-exec" {              #   It uses provisioners to execute local commands (using local-exec)
     inline = [
@@ -86,7 +88,6 @@ resource "null_resource" "ansible" {      # but can be used to trigger actions t
     ]
   }
 }
-#
 
 #routw53 records for server and loadbalancer..
 resource "aws_route53_record" "server" {
