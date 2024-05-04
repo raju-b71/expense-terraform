@@ -2,7 +2,7 @@ env = "dev"
 instance_type = "t3.micro"
 zone_id = "Z0973896Y2YOE63MZMJ"
 
-#vpc
+#vpch
 vpc_cidr_block = "10.10.0.0/24"
 
 default_vpc_id = "vpc-084e78a916ca55ff1"
