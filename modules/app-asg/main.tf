@@ -106,3 +106,100 @@ resource "aws_lb_target_group" "main" {                                  #this i
   }
 }
 
+#security group for LOADBALANCER
+resource "aws_security_group" "load-balancer" {                   #seperate sg for loadbalancer
+  name = "${var.component}-${var.env}-lb-sg"                        #name is loadbalancer security group
+  description = "${var.component}-${var.env}-lb-sg"
+  vpc_id = var.vpc_id
+
+  dynamic "ingress" {                                         #one is inboundport/any sg wii have inbound rules and outbound rules
+    for_each = var.lb_ports
+    content {
+      from_port   = ingress.value                              #0 to 0 is whole range
+      to_port     = ingress.value
+      protocol    = "TCP"                                     #this stands for all traffic
+      cidr_blocks = var.lb_app_port_sg_cidr
+    }
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"                                         #one is outboundport
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.component}-${var.env}-sg"
+  }
+}
+
+#THIS IS LOADBALANCER
+resource "aws_lb" "main" {                                                     #loadbalncer
+
+  name               = "${var.env}-${var.component}-alb"
+  internal           = var.lb_type == "public" ? false : true              #this  is cond if var.lb= public is false then
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.load-balancer.id]
+  subnets            = var.lb_subnets                                       # we have to go to f,b and choose subnets
+
+  tags = {
+    Environment = "${var.env}-${var.component}-alb"
+  }
+}
+
+resource "aws_route53_record" "load-balancer" {                   #route53 for lb#  if lb is needed then we create server record = 1
+  name    = "${var.component}-${var.env}"
+  type    = "CNAME"
+  zone_id = var.zone_id
+  records = [aws_lb.main.dns_name]
+  ttl = 30
+}
+
+#LOADBALANCER LISTENER
+resource "aws_lb_listener" "frontend-http" {                                  #listener group
+  count =  var.lb_type == "public" ? 1 : 0
+  load_balancer_arn = aws_lb.main.arn
+  port              = var.app_port
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+resource "aws_lb_listener" "frontend-https" {                                  #listener group
+  count =  var.lb_type == "public" ? 1 : 0
+  load_balancer_arn = aws_lb.main.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy       = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn = var.certificate_arn
+
+  default_action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.main.arn
+  }
+
+}
+
+resource "aws_lb_listener" "backend" {                                  #listener group
+  count = var.lb_type != "public" ? 1 : 0
+  load_balancer_arn = aws_lb.main.arn
+  port              = var.app_port
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.main.arn
+  }
+}
+
+
+
+
