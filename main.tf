@@ -57,7 +57,7 @@ module "frontend" {
   max_capacity = var.max_capacity
   min_capacity =var.min_capacity
   prometheus_nodes = var.prometheus_nodes
-  server_app_port_sg_cidr = concat(var.frontend_subnets, var.backend_subnets)
+  server_app_port_sg_cidr = var.public_subnets
   subnets = module.vpc.frontend_subnets
   vpc_id = module.vpc.vpc_id
   vault_token = var.vault_token
