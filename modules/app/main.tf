@@ -46,6 +46,7 @@ resource "aws_instance" "instance" {
     encrypted  = true
     kms_key_id = var.kms_key_id
   }
+#12
 
 
   tags = {
